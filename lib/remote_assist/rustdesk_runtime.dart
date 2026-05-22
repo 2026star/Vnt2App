@@ -158,7 +158,7 @@ class RustDeskRuntime {
   static const String executableName = 'rustdesk.exe';
   static const String companionExecutableName = 'rustdesk_qs.exe';
   static const String runtimeVersionFileName = 'runtime-version.txt';
-  static const String managedRootDirectoryName = 'VntcApp1.0';
+  static const String managedRootDirectoryName = 'Vnt2App';
   static const String managedRuntimeDirectoryName = 'rustdesk-managed';
   static const String managedHostPidFileName = 'host.pid';
   static const String legacyManagedCompanionPidFileName = 'companion.pid';

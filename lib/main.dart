@@ -149,22 +149,30 @@ Future<void> main(List<String> args) async {
     _writeBootTrace('before ConfigManager.init');
     await ConfigManager().init();
     _writeBootTrace('after ConfigManager.init');
-    final identityRefresh =
-        await DataPersistence().ensureWindowsRuntimeIdentityOwnership();
-    if (identityRefresh != null) {
-      _writeBootTrace(
-        'windows identity ownership '
-        'reason=${identityRefresh.reason} '
-        'rotated=${identityRefresh.rotated} '
-        'updatedConfigs=${identityRefresh.updatedConfigCount}',
-      );
-      if (identityRefresh.rotated) {
-        debugPrint(
-          'Windows 运行时身份已自动刷新: '
-          'reason=${identityRefresh.reason}, '
-          'configs=${identityRefresh.updatedConfigCount}',
+    try {
+      _writeBootTrace('before windows identity ownership');
+      final identityRefresh = await DataPersistence()
+          .ensureWindowsRuntimeIdentityOwnership()
+          .timeout(const Duration(seconds: 5));
+      _writeBootTrace('after windows identity ownership');
+      if (identityRefresh != null) {
+        _writeBootTrace(
+          'windows identity ownership '
+          'reason=${identityRefresh.reason} '
+          'rotated=${identityRefresh.rotated} '
+          'updatedConfigs=${identityRefresh.updatedConfigCount}',
         );
+        if (identityRefresh.rotated) {
+          debugPrint(
+            'Windows 运行时身份已自动刷新: '
+            'reason=${identityRefresh.reason}, '
+            'configs=${identityRefresh.updatedConfigCount}',
+          );
+        }
       }
+    } catch (e) {
+      _writeBootTrace('windows identity ownership skipped: $e');
+      debugPrint('Windows 运行时身份检查失败，已跳过以继续启动: $e');
     }
   }
 

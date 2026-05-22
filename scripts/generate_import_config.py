@@ -59,7 +59,7 @@ def main() -> None:
         help="Target network code. Replace if your production network uses another value.",
     )
     parser.add_argument("--password", default="", help="Optional network password.")
-    parser.add_argument("--config-name", default="线上QUIC测试", help="Display name in VntcApp1.0.")
+    parser.add_argument("--config-name", default="线上QUIC测试", help="Display name in Vnt2App.")
     parser.add_argument("--device-name", default="vntcapp-test", help="Logical device name.")
     parser.add_argument("--device-id", default="", help="Optional fixed device ID.")
     parser.add_argument("--tun-name", default="vnt-tun-test", help="Virtual adapter name.")

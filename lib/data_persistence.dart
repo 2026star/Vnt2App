@@ -25,6 +25,8 @@ class WindowsRuntimeIdentityRefreshResult {
 }
 
 class DataPersistence {
+  static const String windowsIdentityRegistryAppDirectoryName = 'Vnt2App';
+  static const Duration _windowsIdentityIoTimeout = Duration(seconds: 2);
   static const String dataKey = 'data-key';
   static const String dataKeyForNative = 'data-key-native';
   static const String vntUniqueIdKey = 'vnt-unique-id-key';
@@ -140,46 +142,74 @@ class DataPersistence {
     }).toList(growable: false);
   }
 
-  Future<Directory> _getWindowsIdentityRegistryDirectory() async {
+  Future<T?> _runWindowsIdentityIo<T>(
+    Future<T> Function() operation,
+    String operationName,
+  ) async {
+    try {
+      return await operation().timeout(_windowsIdentityIoTimeout);
+    } catch (e) {
+      debugPrint('Windows 身份注册 $operationName 失败，跳过本次 marker 操作: $e');
+      return null;
+    }
+  }
+
+  Future<Directory?> _getWindowsIdentityRegistryDirectory() async {
     final localAppData = Platform.environment['LOCALAPPDATA'];
     final basePath = (localAppData != null && localAppData.trim().isNotEmpty)
         ? localAppData
         : Directory.systemTemp.path;
-    final directory = Directory(
-      path.join(basePath, 'VntcApp1.0', 'identity_registry'),
-    );
-    if (!await directory.exists()) {
-      await directory.create(recursive: true);
-    }
-    return directory;
+    return _runWindowsIdentityIo(() async {
+      final directory = Directory(
+        path.join(
+          basePath,
+          windowsIdentityRegistryAppDirectoryName,
+          'identity_registry',
+        ),
+      );
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+      }
+      return directory;
+    }, '初始化目录');
   }
 
-  Future<File> _getWindowsIdentityMarkerFile(String registrationId) async {
+  Future<File?> _getWindowsIdentityMarkerFile(String registrationId) async {
     final directory = await _getWindowsIdentityRegistryDirectory();
+    if (directory == null) {
+      return null;
+    }
     return File(path.join(directory.path, '$registrationId.json'));
   }
 
-  Future<void> _writeWindowsIdentityMarker({
+  Future<bool> _writeWindowsIdentityMarker({
     required String registrationId,
     required String uniqueId,
     required String reason,
     required int configCount,
   }) async {
     final markerFile = await _getWindowsIdentityMarkerFile(registrationId);
+    if (markerFile == null) {
+      return false;
+    }
     final payload = <String, dynamic>{
       'registration_id': registrationId,
       'unique_id': uniqueId,
       'reason': reason,
       'config_count': configCount,
-      'hostname': Platform.localHostname,
+      'hostname': Platform.environment['COMPUTERNAME'] ?? '',
       'username': Platform.environment['USERNAME'] ?? '',
       'userdomain': Platform.environment['USERDOMAIN'] ?? '',
       'resolved_executable': Platform.resolvedExecutable,
       'written_at': DateTime.now().toIso8601String(),
     };
-    await markerFile.writeAsString(
-      const JsonEncoder.withIndent('  ').convert(payload),
-    );
+    final written = await _runWindowsIdentityIo(() async {
+      await markerFile.writeAsString(
+        const JsonEncoder.withIndent('  ').convert(payload),
+      );
+      return true;
+    }, '写入 marker');
+    return written ?? false;
   }
 
   Future<WindowsRuntimeIdentityRefreshResult> _rotateWindowsRuntimeIdentity({
@@ -256,7 +286,28 @@ class DataPersistence {
     }
 
     final markerFile = await _getWindowsIdentityMarkerFile(registrationId);
-    final hasRegistrationMarker = await markerFile.exists();
+    if (markerFile == null) {
+      return WindowsRuntimeIdentityRefreshResult(
+        rotated: false,
+        reason: 'identity-registry-unavailable',
+        uniqueId: currentUniqueId,
+        updatedConfigCount: 0,
+        installRegistrationId: registrationId,
+      );
+    }
+    final hasRegistrationMarker = await _runWindowsIdentityIo(
+      markerFile.exists,
+      '检查 marker',
+    );
+    if (hasRegistrationMarker == null) {
+      return WindowsRuntimeIdentityRefreshResult(
+        rotated: false,
+        reason: 'identity-registry-unavailable',
+        uniqueId: currentUniqueId,
+        updatedConfigCount: 0,
+        installRegistrationId: registrationId,
+      );
+    }
     if (!shouldRotateWindowsIdentityForCopiedRuntime(
       uniqueId: currentUniqueId,
       configs: configs,

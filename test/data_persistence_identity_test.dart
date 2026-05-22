@@ -24,6 +24,13 @@ NetworkConfig _buildConfig({
 
 void main() {
   group('Windows runtime identity ownership', () {
+    test('Windows 身份注册目录标识应使用 Vnt2App', () {
+      expect(
+        DataPersistence.windowsIdentityRegistryAppDirectoryName,
+        'Vnt2App',
+      );
+    });
+
     test('无注册标记且带有旧唯一身份时应触发旋转', () {
       final configs = [
         _buildConfig(
