@@ -274,8 +274,6 @@ Future<void> main(List<String> args) async {
 
         await windowManager.setSize(placement.size);
         await windowManager.setPosition(placement.position);
-        await dataPersistence.saveWindowSize(placement.size);
-        await dataPersistence.saveWindowPosition(placement.position);
 
         if (startupToTray) {
           await windowManager.hide();
@@ -578,6 +576,21 @@ class _MainAppState extends State<MainApp> with WindowListener {
     await _performCloseBehavior(closeBehavior);
   }
 
+  Future<void> _saveCurrentWindowPlacement() async {
+    if (!Platform.isWindows && !Platform.isLinux) {
+      return;
+    }
+    try {
+      final size = await windowManager.getSize();
+      final position = await windowManager.getPosition();
+      final dataPersistence = DataPersistence();
+      await dataPersistence.saveWindowSize(size);
+      await dataPersistence.saveWindowPosition(position);
+    } catch (e) {
+      debugPrint('保存窗口位置和大小失败: $e');
+    }
+  }
+
   Future<void> _performCloseBehavior(
     WindowCloseBehavior closeBehavior,
   ) async {
@@ -586,10 +599,12 @@ class _MainAppState extends State<MainApp> with WindowListener {
         return;
       case WindowCloseBehavior.minimizeToTray:
         debugPrint('隐藏到托盘');
+        await _saveCurrentWindowPlacement();
         appWindow.hide();
         return;
       case WindowCloseBehavior.exitApp:
         debugPrint('退出应用');
+        await _saveCurrentWindowPlacement();
         await vntManager.removeAll();
         windowManager.setPreventClose(false);
         if (Platform.isLinux) {

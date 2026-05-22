@@ -45,7 +45,7 @@ class _SettingsPageState extends State<SettingsPage> {
   WindowCloseBehavior _closeBehavior = WindowCloseBehavior.ask;
   final List<(String, String)> _configNames = [];
   String _defaultKey = '';
-  static const String _windowsStartupTaskName = 'VNTAppStartup';
+  static const String _windowsStartupTaskName = 'VNT2AppStartup';
   static const String _windowsStartupTrayArg = '--startup-tray';
 
   @override
