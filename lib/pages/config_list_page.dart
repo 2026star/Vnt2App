@@ -815,6 +815,7 @@ class _ConfigListPageState extends State<ConfigListPage> {
             // 更新系统托盘
             SystemTrayManager().updateMenu();
             SystemTrayManager().updateTooltip();
+            SystemTrayManager().updateIcon();
           } else {
             // 重连成功
             showTopToast(context, '[$configName] 已重新连接到服务器', isSuccess: true);
@@ -836,6 +837,7 @@ class _ConfigListPageState extends State<ConfigListPage> {
           // 更新系统托盘
           SystemTrayManager().updateMenu();
           SystemTrayManager().updateTooltip();
+            SystemTrayManager().updateIcon();
         }
       } else if (msg is RustErrorInfo) {
         // Disconnect 类型不销毁连接，Rust 层会自动重连
@@ -862,6 +864,7 @@ class _ConfigListPageState extends State<ConfigListPage> {
         // 更新系统托盘
         SystemTrayManager().updateMenu();
         SystemTrayManager().updateTooltip();
+            SystemTrayManager().updateIcon();
       } else if (msg is RustConnectInfo) {
         // 移除 60 次限制，持续重连直到成功或手动停止
         // if (onece && msg.count > BigInt.from(60)) {
@@ -876,6 +879,7 @@ class _ConfigListPageState extends State<ConfigListPage> {
         //   // 更新系统托盘
         //   SystemTrayManager().updateMenu();
         //   SystemTrayManager().updateTooltip();
+            SystemTrayManager().updateIcon();
         // }
       }
     });
@@ -1409,6 +1413,7 @@ class _ConfigListPageState extends State<ConfigListPage> {
                         // 更新系统托盘
                         SystemTrayManager().updateMenu();
                         SystemTrayManager().updateTooltip();
+            SystemTrayManager().updateIcon();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,

@@ -252,6 +252,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             // 更新系统托盘
             await SystemTrayManager().updateMenu();
             await SystemTrayManager().updateTooltip();
+            await SystemTrayManager().updateIcon();
           } else {
             // 重连成功（onece 已经是 false，说明之前已经连接过）
             showTopToast(context, '[${config.configName}] 已重新连接到服务器',
@@ -281,6 +282,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
           // 更新系统托盘
           await SystemTrayManager().updateMenu();
           await SystemTrayManager().updateTooltip();
+            await SystemTrayManager().updateIcon();
         }
       } else if (msg is RustErrorInfo) {
         // Disconnect 类型不销毁连接，Rust 层会自动重连
@@ -311,6 +313,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         // 更新系统托盘
         await SystemTrayManager().updateMenu();
         await SystemTrayManager().updateTooltip();
+            await SystemTrayManager().updateIcon();
       } else if (msg is RustConnectInfo) {
         // 移除 60 次限制，持续重连直到成功或手动停止
         // if (onece && msg.count > BigInt.from(60)) {
@@ -325,6 +328,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         //   // 更新系统托盘
         //   await SystemTrayManager().updateMenu();
         //   await SystemTrayManager().updateTooltip();
+            await SystemTrayManager().updateIcon();
         // }
       }
     });
@@ -851,6 +855,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             // 更新系统托盘
             await SystemTrayManager().updateMenu();
             await SystemTrayManager().updateTooltip();
+            await SystemTrayManager().updateIcon();
           },
           onConnect: () async {
             // 尝试连接默认配置

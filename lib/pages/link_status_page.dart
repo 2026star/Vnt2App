@@ -2230,6 +2230,7 @@ class _LinkStatusPageState extends State<LinkStatusPage>
                         // 更新系统托盘
                         await SystemTrayManager().updateMenu();
                         await SystemTrayManager().updateTooltip();
+                        await SystemTrayManager().updateIcon();
 
                         if (widget.onDisconnect != null) {
                           widget.onDisconnect!();

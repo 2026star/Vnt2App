@@ -485,6 +485,7 @@ class _MainAppState extends State<MainApp> with WindowListener {
               if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
                 SystemTrayManager().updateMenu();
                 SystemTrayManager().updateTooltip();
+                SystemTrayManager().updateIcon();
               }
             } else if (msg == 'stop') {
               vntManager.remove(config.itemKey);
@@ -495,6 +496,7 @@ class _MainAppState extends State<MainApp> with WindowListener {
               if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
                 SystemTrayManager().updateMenu();
                 SystemTrayManager().updateTooltip();
+                SystemTrayManager().updateIcon();
               }
             }
           } else if (msg is RustErrorInfo) {
@@ -514,6 +516,7 @@ class _MainAppState extends State<MainApp> with WindowListener {
             if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
               SystemTrayManager().updateMenu();
               SystemTrayManager().updateTooltip();
+                SystemTrayManager().updateIcon();
             }
           }
         });
