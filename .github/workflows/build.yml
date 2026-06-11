@@ -41,10 +41,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          #- NAME: vnt2App-android
+          #  OS: ubuntu-latest
+          #  flutter-version: 3.24.5
 
-          - NAME: vnt2App-android
-            OS: ubuntu-latest
-            flutter-version: 3.24.5
 
           - NAME: vnt2App-windows
             OS: windows-2022
@@ -301,10 +301,8 @@ jobs:
         with:
           name: ${{ matrix.NAME }}
           path: |
-            ${{ matrix.NAME == 'vnt2App-android' && 'vnt2_app-android.apk' || '' }}
             ${{ matrix.NAME == 'vnt2App-windows' && 'vnt2_app-windows.zip' || '' }}
-            ${{ matrix.NAME == 'vnt2App-android' && 'vnt2_app-android.apk' || '' }}
-            ${{ matrix.NAME == 'vnt2App-windows' && 'vnt2_app-windows.zip' || '' }}
+            # ${{ matrix.NAME == 'vnt2App-android' && 'vnt2_app-android.apk' || '' }}
 
   deploy:
     needs: build
@@ -332,7 +330,7 @@ jobs:
             fi
           }
 
-          copy_asset "artifacts/vnt2App-android/vnt2_app-android.apk" "vnt2_app-android.apk"
+          # copy_asset "artifacts/vnt2App-android/vnt2_app-android.apk" "vnt2_app-android.apk"
           copy_asset "artifacts/vnt2App-windows/vnt2_app-windows.zip" "vnt2_app-windows.zip"
 
           echo "发布文件列表:"
