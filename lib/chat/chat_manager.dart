@@ -206,7 +206,7 @@ class ChatManager extends ChangeNotifier implements ChatNetworkDelegate {
   }
 
   String? _chatCredential(NetworkConfig config) {
-    final token = config.token.trim();
+    final token = config.serverToken.trim();
     final password = config.groupPassword.trim();
     if (token.isEmpty && password.isEmpty) {
       return null;

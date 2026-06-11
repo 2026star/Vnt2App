@@ -142,7 +142,7 @@ class VntBox {
             .where((value) => value.isNotEmpty)
             .toList(growable: false),
         certMode: config.effectiveCertMode,
-        networkCode: config.networkCode?.isNotEmpty == true ? config.networkCode! : config.token,
+        networkCode: config.networkCode?.isNotEmpty == true ? config.networkCode! : config.serverToken,
         token: config.token,
         serverToken: config.serverToken,
         deviceId: config.deviceID,

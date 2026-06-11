@@ -170,8 +170,8 @@ class ConfigCard extends StatelessWidget {
               context,
               isDark,
               Icons.vpn_key_outlined,
-              'Token',
-              _maskToken(config.token),
+              '服务端验证密码',
+              _maskToken(config.serverToken),
             ),
             SizedBox(height: context.spacing(8)),
             _buildInfoRow(

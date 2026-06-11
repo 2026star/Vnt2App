@@ -22,7 +22,6 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
   final _nameController = TextEditingController();
   final _networkCodeController = TextEditingController();
   final _groupNumberController = TextEditingController();
-  final _serverTokenController = TextEditingController();
   final _deviceNameController = TextEditingController(
       text: () {
         String version = Platform.operatingSystemVersion.replaceAll('"', '').trim();
@@ -45,7 +44,6 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
 
   bool _isPasswordVisible = false;
   bool _isTokenVisible = false;
-  bool _isServerTokenVisible = false;
   String _communicationMethod = 'QUIC';
   String _builtInIpProxy = 'OPEN';
   String _p2pPunch = 'OPEN';
@@ -64,7 +62,6 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
     _nameController.dispose();
     _networkCodeController.dispose();
     _groupNumberController.dispose();
-    _serverTokenController.dispose();
     _deviceNameController.dispose();
     _virtualIPv4Controller.dispose();
     _groupPasswordController.dispose();
@@ -126,8 +123,7 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
   void _loadConfig(NetworkConfig config) {
     _nameController.text = config.configName;
     _networkCodeController.text = config.networkCode ?? '';
-    _groupNumberController.text = config.token;
-    _serverTokenController.text = config.serverToken;
+    _groupNumberController.text = config.serverToken;
     _deviceNameController.text = config.deviceName;
     _virtualIPv4Controller.text = config.virtualIPv4;
     for (final serverAddress in config.effectiveServerList) {
@@ -214,8 +210,8 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
             DateTime.now().millisecondsSinceEpoch.toString(),
         configName: name,
         networkCode: _networkCodeController.text.trim(),
-        token: _groupNumberController.text,
-        serverToken: _serverTokenController.text,
+        token: '',
+        serverToken: _groupNumberController.text,
         deviceName: _deviceNameController.text,
         virtualIPv4: _virtualIPv4Controller.text,
         serverList: serverList,
@@ -393,8 +389,8 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
                 ),
                 CustomTooltipTextField(
                   controller: _groupNumberController,
-                  labelText: '组网token',
-                  tooltipMessage: '(相同的token和服务器才能组建一个虚拟局域网)',
+                  labelText: '服务端验证密码 (server_token)',
+                  tooltipMessage: '(对应服务端的server_token，必填)',
                   maxLength: 64,
                   obscureText: !_isTokenVisible, // 控制是否隐藏文本
                   suffixIcon: IconButton( // 可见性切换按钮
@@ -409,25 +405,11 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return '请输入token';
+                      return '请输入服务端验证密码';
                     }
                     return null;
                   },
                 ),
-                CustomTooltipTextField(
-                  controller: _serverTokenController,
-                  labelText: '服务端验证密码 (server_token)',
-                  tooltipMessage: '(对应服务端的server_token，选填)',
-                  maxLength: 64,
-                  obscureText: !_isServerTokenVisible, // 控制是否隐藏文本
-                  suffixIcon: IconButton( // 可见性切换按钮
-                    icon: Icon(
-                      _isServerTokenVisible ? Icons.visibility : Icons.visibility_off,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isServerTokenVisible = !_isServerTokenVisible;
-                      });
                     },
                   ),
                 ),
@@ -514,7 +496,7 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
                 _buildSectionTitle('传输安全'),
                 _buildTextFormField(
                   _groupPasswordController,
-                  '组网密码',
+                  '服务端验证密码',
                   256,
                   null,
                   null,
