@@ -206,12 +206,11 @@ class ChatManager extends ChangeNotifier implements ChatNetworkDelegate {
   }
 
   String? _chatCredential(NetworkConfig config) {
-    final token = config.serverToken.trim();
     final password = config.groupPassword.trim();
-    if (token.isEmpty && password.isEmpty) {
+    if (password.isEmpty) {
       return null;
     }
-    return '$token\n$password';
+    return base64Encode(utf8.encode(password));
   }
 
   Set<String> _normalizedChatServers(NetworkConfig config) {

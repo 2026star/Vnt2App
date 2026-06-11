@@ -2046,7 +2046,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 title: '当前配置',
                 value: hasConnection ? _configName : '未连接',
                 subtitle: hasConnection
-                    ? (_isEncrypted ? '服务端验证密码已设置' : '未设置服务端验证密码')
+                    ? (_isEncrypted ? '服务端验证密码(password)已设置' : '未设置服务端验证密码(password)')
                     : '',
                 isEncrypted: hasConnection ? _isEncrypted : false,
                 onTap: hasConnection ? () => _showConfigDialog(isDark) : null,
@@ -3982,7 +3982,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       // 服务器配置
                       _buildSectionTitle(isDark, '服务器配置'),
                       _buildDeviceInfoItem(isDark, '服务器地址', _joinConfigValues(config.effectiveServerList)),
-                      _buildDeviceInfoItem(isDark, '服务端验证密码 (server_token)', config.serverToken.isEmpty ? '未设置' : '********'),
+
                       _buildDeviceInfoItem(isDark, '证书验证', config.effectiveCertMode),
                       _buildDeviceInfoItem(isDark, 'UDP STUN', _joinConfigValues(config.effectiveUdpStun, emptyText: '默认')),
                       _buildDeviceInfoItem(isDark, 'TCP STUN', _joinConfigValues(config.effectiveTcpStun, emptyText: '默认')),
@@ -3991,7 +3991,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
                       // 安全配置
                       _buildSectionTitle(isDark, '安全配置'),
-                      _buildDeviceInfoItem(isDark, '服务端验证密码', config.groupPassword.isEmpty ? '未设置' : '********'),
+                      _buildDeviceInfoItem(isDark, '服务端验证密码(password)', config.groupPassword.isEmpty ? '未设置' : '********'),
 
                       const SizedBox(height: 16),
 

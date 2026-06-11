@@ -128,5 +128,7 @@ flutter:
     - pubspec.yaml
     - assets/app_icon.ico
     - assets/app_icon.png
+    - assets/app_icon_connected.ico
+    - assets/app_icon_connected.png
     - assets/ic_launcher.png
     - assets/log4rs.yaml

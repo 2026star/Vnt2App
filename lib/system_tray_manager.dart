@@ -66,6 +66,7 @@ class SystemTrayManager {
           // 乐观更新：先更新UI为未连接状态
           await updateMenu(optimisticState: false);
           await updateTooltip(optimisticState: false);
+          await updateIcon(optimisticState: false);
 
           // 执行断开操作
           await vntManager.removeAll();
@@ -73,6 +74,7 @@ class SystemTrayManager {
           // 根据实际状态更新UI
           await updateMenu();
           await updateTooltip();
+          await updateIcon();
         },
       ));
     } else {
@@ -104,6 +106,7 @@ class SystemTrayManager {
               // 乐观更新：先更新UI为未连接状态
               await updateMenu(optimisticState: false);
               await updateTooltip(optimisticState: false);
+              await updateIcon(optimisticState: false);
 
               await vntManager.removeAll();
               await Future.delayed(const Duration(milliseconds: 500));
@@ -182,11 +185,41 @@ class SystemTrayManager {
     await systemTray.setToolTip(tooltip);
     // Linux 上 setToolTip 会重置图标，需要重新设置
     if (Platform.isLinux) {
-      try {
-        await systemTray.setImage('/tmp/vnt2_app_icon.png');
-      } catch (e) {
-        debugPrint('设置托盘图标失败: $e');
+      await updateIcon(optimisticState: optimisticState);
+    }
+  }
+
+  /// 更新系统托盘图标
+  Future<void> updateIcon({bool? optimisticState}) async {
+    if (!Platform.isWindows && !Platform.isMacOS && !Platform.isLinux) {
+      return;
+    }
+
+    final hasConnection = optimisticState ?? vntManager.hasConnection();
+    String iconPath;
+
+    if (Platform.isLinux) {
+      iconPath = hasConnection ? '/tmp/vnt2_app_icon_connected.png' : '/tmp/vnt2_app_icon.png';
+      // 降级处理：如果在 tmp 没有对应文件，使用原始的
+      if (!File(iconPath).existsSync()) {
+        iconPath = '/tmp/vnt2_app_icon.png';
       }
+    } else if (Platform.isWindows) {
+      iconPath = hasConnection ? 'assets/app_icon_connected.ico' : 'assets/app_icon.ico';
+      if (!File(iconPath).existsSync()) {
+        iconPath = 'assets/app_icon.ico'; // 降级处理
+      }
+    } else {
+      iconPath = hasConnection ? 'assets/app_icon_connected.png' : 'assets/app_icon.png';
+      if (!File(iconPath).existsSync()) {
+        iconPath = 'assets/app_icon.png';
+      }
+    }
+
+    try {
+      await systemTray.setImage(iconPath);
+    } catch (e) {
+      debugPrint('设置托盘图标失败: $e');
     }
   }
 
@@ -196,6 +229,7 @@ class SystemTrayManager {
       // 乐观更新：先更新UI为已连接状态
       await updateMenu(optimisticState: true);
       await updateTooltip(optimisticState: true);
+      await updateIcon(optimisticState: true);
 
       final receivePort = ReceivePort();
       bool connectionSuccessful = false;
@@ -206,11 +240,13 @@ class SystemTrayManager {
           // 连接成功，更新托盘
           updateMenu();
           updateTooltip();
+          updateIcon();
         } else if (message == 'stop') {
           // 连接失败或停止，恢复UI状态
           if (!connectionSuccessful) {
             updateMenu();
             updateTooltip();
+            updateIcon();
           }
         } else if (message is RustErrorInfo) {
           // Disconnect 类型不销毁连接，Rust 层会自动重连
@@ -223,6 +259,7 @@ class SystemTrayManager {
           if (!connectionSuccessful) {
             updateMenu();
             updateTooltip();
+            updateIcon();
           }
         }
       });
@@ -236,12 +273,14 @@ class SystemTrayManager {
       if (!vntManager.hasConnection()) {
         await updateMenu();
         await updateTooltip();
+        await updateIcon();
       }
     } catch (e) {
       debugPrint('连接配置失败: $e');
       // 连接失败，恢复UI状态
       await updateMenu();
       await updateTooltip();
+      await updateIcon();
     }
   }
 }

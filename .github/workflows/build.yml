@@ -41,14 +41,38 @@ jobs:
       fail-fast: false
       matrix:
         include:
+
           - NAME: vnt2App-android
             OS: ubuntu-latest
             flutter-version: 3.24.5
 
-
           - NAME: vnt2App-windows
             OS: windows-2022
             flutter-version: 3.24.5
+
+          - NAME: vnt2App-macOS
+            OS: macos-latest
+            flutter-version: 3.24.5
+
+          - NAME: vnt2App-IOS
+            OS: macos-14
+            flutter-version: 3.24.5
+
+          - NAME: vnt2App-linux-x86_64
+            OS: ubuntu-latest
+            flutter-version: 3.24.5
+            DOCKER_PLATFORM: linux/amd64
+            DOCKER_IMAGE: ubuntu:18.04
+            APPIMAGE_ARCH: x86_64
+            BUNDLE_DIR: build/linux/x64/release/bundle
+
+          #- NAME: vnt2App-linux-arm64
+          #  OS: ubuntu-latest
+          #  flutter-version: 3.24.5
+          #  DOCKER_PLATFORM: linux/arm64
+          #  DOCKER_IMAGE: arm64v8/ubuntu:18.04
+          #  APPIMAGE_ARCH: aarch64
+          #  BUNDLE_DIR: build/linux/arm64/release/bundle
 
     runs-on: ${{ matrix.OS }}
     steps:
@@ -65,7 +89,12 @@ jobs:
           perl -i -pe "s/^version: .*/version: $VERSION/" pubspec.yaml
           echo "pubspec version → $VERSION"
 
-
+      - name: 设置 Xcode 版本
+        if: matrix.NAME == 'vnt2App-IOS'
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.2'
+        
       - name: 设置JDK环境
         if: matrix.NAME == 'vnt2App-android'
         uses: actions/setup-java@v4
@@ -87,6 +116,14 @@ jobs:
           channel: stable
           flutter-version: ${{ matrix.flutter-version }}
 
+      - name: 缓存 Flutter 依赖
+        if: matrix.NAME == 'vnt2App-macOS'
+        uses: actions/cache@main
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
 
       - name: 缓存 Flutter / Pub / Gradle（Windows 7 引擎版）
         if: matrix.NAME == 'vnt2App-windows'
@@ -294,15 +331,191 @@ jobs:
 
           Compress-Archive -Path * -DestinationPath $Env:GITHUB_WORKSPACE/vnt2_app-windows.zip -Force
           
+      - name: macOS 同步 Rust API 参数
+        if: matrix.NAME == 'vnt2App-macOS'
+        shell: bash
+        run: |
+          rustup target add aarch64-apple-darwin
+          rustup target add x86_64-apple-darwin
 
+      - name: 修复 tun-rs 代码（macOS/iOS）
+        if: matrix.NAME == 'vnt2App-macOS' || matrix.NAME == 'vnt2App-IOS'
+        shell: bash
+        run: |
+          echo "预下载依赖以触发 tun-rs 下载"
+          cd rust
+          cargo fetch || true
+          
+          echo "修复 tun-rs size_of 导入问题"
+          TUN_FILE=$(find ~/.cargo/registry/src -name "mod.rs" -path "*/tun-rs-*/src/platform/macos/tap/mod.rs" 2>/dev/null | head -1)
+          if [ -n "$TUN_FILE" ] && [ -f "$TUN_FILE" ]; then
+            echo "找到文件: $TUN_FILE"
+            echo 'use std::mem::size_of;' | sed -i '' '35r /dev/stdin' "$TUN_FILE" || \
+            sed -i '' '35a\
+          use std::mem::size_of;' "$TUN_FILE"
+            echo "✅ 已修复"
+          else
+            echo "⚠️ 未找到 tun-rs 文件，可能还未下载"
+          fi
+          cd ..
+
+      - name: 构建 macOS 应用
+        if: matrix.NAME == 'vnt2App-macOS'
+        run: |
+          # 修改 pbxproj
+          sed -i '' 's/MACOSX_DEPLOYMENT_TARGET = 10\.[0-9]*/MACOSX_DEPLOYMENT_TARGET = 10.15/g' macos/Runner.xcodeproj/project.pbxproj
+          # 修改所有 xcconfig
+          find macos -name "*.xcconfig" | while read f; do
+            if grep -q "MACOSX_DEPLOYMENT_TARGET" "$f"; then
+              sed -i '' 's/MACOSX_DEPLOYMENT_TARGET = 10\.[0-9]*/MACOSX_DEPLOYMENT_TARGET = 10.15/g' "$f"
+            else
+              echo "MACOSX_DEPLOYMENT_TARGET = 10.15" >> "$f"
+            fi
+          done
+          # 生成 Podfile 后修改
+          flutter build macos --config-only
+          if [ -f macos/Podfile ]; then
+            if grep -q "platform :osx" macos/Podfile; then
+              sed -i '' "s/platform :osx, '[0-9.]*'/platform :osx, '10.15'/" macos/Podfile
+            else
+              sed -i '' '1s/^/platform :osx, '"'"'10.15'"'"'\n/' macos/Podfile
+            fi
+          fi
+          
+          # 构建 Flutter macOS 应用
+          flutter pub get
+          flutter build macos --release -v
+
+          APP_PATH="build/macos/Build/Products/Release/vnt2_app.app"
+          DMG_PATH="vnt2_APP.dmg"
+
+          echo "构建完成，产物位于：$APP_PATH"
+
+          # 确保可执行文件有正确的权限
+          echo "设置可执行权限..."
+          chmod +x "$APP_PATH/Contents/MacOS/vnt2_app"
+
+          # 代码签名（用 ad-hoc 签名）
+          echo "对应用进行代码签名..."
+          codesign --force --deep --timestamp=none --preserve-metadata=identifier,entitlements,flags --sign - "$APP_PATH"
+
+          # 验证签名
+          echo "验证代码签名..."
+          codesign --verify --verbose "$APP_PATH"
+
+          # 验证 .app 结构
+          echo "验证应用结构..."
+          ls -la "$APP_PATH/Contents/MacOS/"
+
+          # 检查 entitlements 是否正确（仅显示，不影响构建）
+          if [ -f "$APP_PATH/Contents/Info.plist" ]; then
+            echo "Info.plist 存在"
+            plutil -p "$APP_PATH/Contents/Info.plist" | grep -E "(NSLocalNetworkUsageDescription|NSSystemExtensionUsageDescription)" || echo "警告：权限说明可能缺失"
+          fi
+
+          # 使用专用脚本创建带背景的 DMG
+          echo "创建 DMG 安装包..."
+          chmod +x macos/create_dmg.sh
+          bash macos/create_dmg.sh "$APP_PATH" "$DMG_PATH"
+
+          echo "DMG 创建完成：$DMG_PATH"
+          ls -lh "$DMG_PATH"
+
+      - name: 构建 IPA
+        if: matrix.NAME == 'vnt2App-IOS'
+        run: |
+          set -e  # 任何一步出错就停止
+          
+          rustup target add aarch64-apple-ios
+          
+          echo "0. 清理 Xcode 缓存"
+          rm -rf ~/Library/Developer/Xcode/DerivedData
+          rm -rf ios/Pods
+          rm -rf ios/Podfile.lock
+          rm -rf ios/.symlinks
+          rm -rf ios/Flutter/Flutter.framework
+          rm -rf ios/Flutter/App.framework
+          rm -rf build/ios
+          flutter clean
+
+          echo "1. 获取 Flutter 依赖"
+          # cd rust
+          # echo "1.2 测试ios库是否正常"
+          # cargo check --target aarch64-apple-ios
+          # cd ../
+
+          flutter pub get
+          
+          # 修改 pbxproj
+          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*/IPHONEOS_DEPLOYMENT_TARGET = 14.0/g' ios/Runner.xcodeproj/project.pbxproj
+          
+          # 修改所有 xcconfig
+          find ios -name "*.xcconfig" | while read f; do
+            if grep -q "IPHONEOS_DEPLOYMENT_TARGET" "$f"; then
+              sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*/IPHONEOS_DEPLOYMENT_TARGET = 14.0/g' "$f"
+            else
+              echo "IPHONEOS_DEPLOYMENT_TARGET = 14.0" >> "$f"
+            fi
+          done
+          
+          # 生成 Podfile 并修改
+          flutter build ios --config-only --no-codesign
+          if [ -f ios/Podfile ]; then
+            if grep -q "platform :ios" ios/Podfile; then
+              sed -i '' "s/platform :ios, '[0-9.]*'/platform :ios, '14.0'/" ios/Podfile
+            else
+              sed -i '' '1s/^/platform :ios, '"'"'14.0'"'"'\n/' ios/Podfile
+            fi
+          fi
+
+          echo "2. 安装 iOS Pods 依赖"
+          cd ios
+          pod install --repo-update
+          cd ..
+
+          echo "3. 开始构建"
+          flutter build ios --release --no-codesign -v
+          
+          echo "4. 创建 Payload 目录（IPA 必须结构）"
+          cd build/ios/iphoneos
+          rm -rf Payload
+          mkdir Payload
+          mv Runner.app Payload/
+          
+          echo "5. 打包成 IPA"
+          zip -r vnt2_app.ipa Payload
+          
+          echo "完成：IPA 已生成"
+
+      - name: 设置 QEMU（Linux arm64 跨架构）
+        if: startsWith(matrix.NAME, 'vnt2App-linux')
+        uses: docker/setup-qemu-action@master
+
+      - name: 构建 Linux AppImage（Docker Ubuntu 18.04）
+        if: startsWith(matrix.NAME, 'vnt2App-linux')
+        run: |
+          chmod +x linux/build_linux_appimage.sh
+          docker run --rm --platform ${{ matrix.DOCKER_PLATFORM }} \
+            -v "${{ github.workspace }}:/workspace" \
+            -v "${HOME}/.pub-cache:/root/.pub-cache" \
+            -e PUB_CACHE=/root/.pub-cache \
+            -e APPIMAGETOOL_ARCH=${{ matrix.APPIMAGE_ARCH }} \
+            -w /workspace \
+            ${{ matrix.DOCKER_IMAGE }} \
+            bash /workspace/linux/build_linux_appimage.sh \
+              ${{ matrix.BUNDLE_DIR }} ${{ matrix.APPIMAGE_ARCH }}
 
       - name: Archive artifact
         uses: actions/upload-artifact@main
         with:
           name: ${{ matrix.NAME }}
           path: |
-            ${{ matrix.NAME == 'vnt2App-windows' && 'vnt2_app-windows.zip' || '' }}
             ${{ matrix.NAME == 'vnt2App-android' && 'vnt2_app-android.apk' || '' }}
+            ${{ matrix.NAME == 'vnt2App-windows' && 'vnt2_app-windows.zip' || '' }}
+            ${{ matrix.NAME == 'vnt2App-macOS' && 'vnt2_APP.dmg' || '' }}
+            ${{ matrix.NAME == 'vnt2App-IOS' && 'build/ios/iphoneos/vnt2_app.ipa' || '' }}
+            ${{ matrix.NAME == 'vnt2App-linux-x86_64' && 'vnt2_app-linux-x86_64.AppImage' || '' }}
+            ${{ matrix.NAME == 'vnt2App-linux-arm64' && 'vnt2_app-linux-aarch64.AppImage' || '' }}
 
   deploy:
     needs: build
@@ -331,6 +544,9 @@ jobs:
           }
 
           copy_asset "artifacts/vnt2App-android/vnt2_app-android.apk" "vnt2_app-android.apk"
+          copy_asset "artifacts/vnt2App-linux-x86_64/vnt2_app-linux-x86_64.AppImage" "vnt2_app-linux-x86_64.AppImage"
+          copy_asset "artifacts/vnt2App-IOS/vnt2_app.ipa" "vnt2_app-ios.ipa"
+          copy_asset "artifacts/vnt2App-macOS/vnt2_APP.dmg" "vnt2_app-mac.dmg"
           copy_asset "artifacts/vnt2App-windows/vnt2_app-windows.zip" "vnt2_app-windows.zip"
 
           echo "发布文件列表:"

@@ -45,8 +45,7 @@ pub(crate) struct RegRequestMsg {
     pub ip_variable: bool,
     pub server_id: u32,
     pub registration_mode: RegistrationMode,
-    pub token: String,
-    pub server_token: String,
+
 }
 impl RegRequestMsg {
     // pub fn check(&self) -> anyhow::Result<()> {
@@ -112,8 +111,7 @@ impl RegRequestMsg {
             ip_variable: self.ip_variable,
             server_id: self.server_id,
             registration_mode: proto::RegistrationMode::from(self.registration_mode).into(),
-            token: self.token,
-            server_token: self.server_token,
+
         }
     }
 }

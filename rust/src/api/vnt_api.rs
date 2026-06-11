@@ -88,8 +88,7 @@ pub struct VntConfig {
     pub server_addr: Vec<String>,
     pub cert_mode: String,
     pub network_code: String,
-    pub token: String,
-    pub server_token: String,
+
     pub device_id: String,
     pub device_name: String,
     pub tun_name: Option<String>,
@@ -479,8 +478,7 @@ fn convert_to_core_config(vnt_config: &VntConfig) -> anyhow::Result<(CoreConfig,
             server_addr,
             cert_mode,
             network_code: vnt_config.network_code.trim().to_string(),
-            token: vnt_config.token.trim().to_string(),
-            server_token: vnt_config.server_token.trim().to_string(),
+
             device_id,
             device_name: vnt_config.device_name.trim().to_string(),
             tun_name: vnt_config

@@ -17,8 +17,7 @@ message RegRequestMsg {
   bool ip_variable = 7;
   fixed32 server_id = 8;
   RegistrationMode registration_mode = 9;
-  string token = 10;
-  string server_token = 11;
+
 }
 
 

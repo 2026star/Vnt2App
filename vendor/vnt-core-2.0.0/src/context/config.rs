@@ -19,8 +19,7 @@ pub struct Config {
     pub server_addr: Vec<ProtocolAddress>,
     pub cert_mode: CertValidationMode,
     pub network_code: String,
-    pub token: String,
-    pub server_token: String,
+
     pub device_id: String,
     pub device_name: String,
     pub tun_name: Option<String>,
@@ -94,8 +93,7 @@ impl Config {
             server_addr: self.server_addr[index].clone(),
             cert_mode: self.cert_mode.clone(),
             network_code: self.network_code.clone(),
-            token: self.token.clone(),
-            server_token: self.server_token.clone(),
+
             device_id: self.device_id.clone(),
             device_name: self.device_name.clone(),
             ip: self.ip,

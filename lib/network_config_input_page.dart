@@ -21,7 +21,7 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _networkCodeController = TextEditingController();
-  final _groupNumberController = TextEditingController();
+
   final _deviceNameController = TextEditingController(
       text: () {
         String version = Platform.operatingSystemVersion.replaceAll('"', '').trim();
@@ -43,7 +43,7 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
   final _tunnelPortController = TextEditingController();
 
   bool _isPasswordVisible = false;
-  bool _isTokenVisible = false;
+
   String _communicationMethod = 'QUIC';
   String _builtInIpProxy = 'OPEN';
   String _p2pPunch = 'OPEN';
@@ -61,7 +61,7 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
   void dispose() {
     _nameController.dispose();
     _networkCodeController.dispose();
-    _groupNumberController.dispose();
+
     _deviceNameController.dispose();
     _virtualIPv4Controller.dispose();
     _groupPasswordController.dispose();
@@ -123,7 +123,7 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
   void _loadConfig(NetworkConfig config) {
     _nameController.text = config.configName;
     _networkCodeController.text = config.networkCode ?? '';
-    _groupNumberController.text = config.serverToken;
+
     _deviceNameController.text = config.deviceName;
     _virtualIPv4Controller.text = config.virtualIPv4;
     for (final serverAddress in config.effectiveServerList) {
@@ -181,13 +181,8 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       var name = _nameController.text.trim();
-      var groupNumber = _groupNumberController.text.trim();
       if (name.isEmpty) {
-        if (groupNumber.length > 6) {
-          name = groupNumber.substring(0, 6);
-        } else {
-          name = groupNumber;
-        }
+        name = '新建配置';
       }
       final serverList = <String>[];
       for (var i = 0; i < _serverAddressControllers.length; i++) {
@@ -210,8 +205,7 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
             DateTime.now().millisecondsSinceEpoch.toString(),
         configName: name,
         networkCode: _networkCodeController.text.trim(),
-        token: '',
-        serverToken: _groupNumberController.text,
+
         deviceName: _deviceNameController.text,
         virtualIPv4: _virtualIPv4Controller.text,
         serverList: serverList,
@@ -384,32 +378,16 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
                 CustomTooltipTextField(
                   controller: _networkCodeController,
                   labelText: '虚拟网络名 (network_code)',
-                  tooltipMessage: '(可选，用于标识特定虚拟网络)',
+                  tooltipMessage: '(必填，用于标识特定虚拟网络)',
                   maxLength: 64,
-                ),
-                CustomTooltipTextField(
-                  controller: _groupNumberController,
-                  labelText: '服务端验证密码 (server_token)',
-                  tooltipMessage: '(对应服务端的server_token，必填)',
-                  maxLength: 64,
-                  obscureText: !_isTokenVisible, // 控制是否隐藏文本
-                  suffixIcon: IconButton( // 可见性切换按钮
-                    icon: Icon(
-                      _isTokenVisible ? Icons.visibility : Icons.visibility_off,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isTokenVisible = !_isTokenVisible;
-                      });
-                    },
-                  ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return '请输入服务端验证密码';
+                      return '请输入虚拟网络名 (network_code)';
                     }
                     return null;
                   },
                 ),
+
                 _buildTextFormField(
                   _deviceNameController,
                   '设备名称',
@@ -493,7 +471,7 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
                 _buildSectionTitle('传输安全'),
                 _buildTextFormField(
                   _groupPasswordController,
-                  '服务端验证密码',
+                  '服务端验证密码(password)',
                   256,
                   null,
                   null,

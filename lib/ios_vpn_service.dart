@@ -12,13 +12,11 @@ class IOSVPNService {
   /// 启动VPN连接
   /// 
   /// [serverAddress] 服务器地址，格式: host:port
-  /// [token] 认证令牌
   /// [deviceName] 设备名称（可选，默认使用设备名）
   /// 
   /// 返回: true表示启动成功，false表示失败
   static Future<bool> startVPN({
     required String serverAddress,
-    required String token,
     String? deviceName,
   }) async {
     if (!isIOS) {
@@ -32,7 +30,6 @@ class IOSVPNService {
       
       final result = await platform.invokeMethod('startVPN', {
         'serverAddress': serverAddress,
-        'token': token,
         'deviceName': deviceName ?? 'iOS Device',
       });
       
@@ -104,12 +101,10 @@ class IOSVPNService {
   /// 保存VPN配置到App Group
   /// 
   /// [serverAddress] 服务器地址
-  /// [token] 认证令牌
   /// 
   /// 返回: true表示保存成功，false表示失败
   static Future<bool> saveConfig({
     required String serverAddress,
-    required String token,
   }) async {
     if (!isIOS) {
       print('[iOS VPN] Not running on iOS platform');
@@ -121,7 +116,6 @@ class IOSVPNService {
       
       final result = await platform.invokeMethod('saveConfig', {
         'serverAddress': serverAddress,
-        'token': token,
       });
       
       print('[iOS VPN] Save result: $result');

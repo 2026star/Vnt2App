@@ -1557,27 +1557,25 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       serverAddr: dco_decode_list_String(arr[0]),
       certMode: dco_decode_String(arr[1]),
       networkCode: dco_decode_String(arr[2]),
-      token: dco_decode_String(arr[3]),
-      serverToken: dco_decode_String(arr[4]),
-      deviceId: dco_decode_String(arr[5]),
-      deviceName: dco_decode_String(arr[6]),
-      tunName: dco_decode_opt_String(arr[7]),
-      ip: dco_decode_opt_String(arr[8]),
-      password: dco_decode_opt_String(arr[9]),
-      noPunch: dco_decode_bool(arr[10]),
-      compress: dco_decode_bool(arr[11]),
-      rtx: dco_decode_bool(arr[12]),
-      fec: dco_decode_bool(arr[13]),
-      input: dco_decode_list_String(arr[14]),
-      output: dco_decode_list_String(arr[15]),
-      noNat: dco_decode_bool(arr[16]),
-      noTun: dco_decode_bool(arr[17]),
-      mtu: dco_decode_opt_box_autoadd_u_32(arr[18]),
-      portMapping: dco_decode_list_String(arr[19]),
-      allowPortMapping: dco_decode_bool(arr[20]),
-      udpStun: dco_decode_list_String(arr[21]),
-      tcpStun: dco_decode_list_String(arr[22]),
-      tunnelPort: dco_decode_opt_box_autoadd_u_16(arr[23]),
+      deviceId: dco_decode_String(arr[3]),
+      deviceName: dco_decode_String(arr[4]),
+      tunName: dco_decode_opt_String(arr[5]),
+      ip: dco_decode_opt_String(arr[6]),
+      password: dco_decode_opt_String(arr[7]),
+      noPunch: dco_decode_bool(arr[8]),
+      compress: dco_decode_bool(arr[9]),
+      rtx: dco_decode_bool(arr[10]),
+      fec: dco_decode_bool(arr[11]),
+      input: dco_decode_list_String(arr[12]),
+      output: dco_decode_list_String(arr[13]),
+      noNat: dco_decode_bool(arr[14]),
+      noTun: dco_decode_bool(arr[15]),
+      mtu: dco_decode_opt_box_autoadd_u_32(arr[16]),
+      portMapping: dco_decode_list_String(arr[17]),
+      allowPortMapping: dco_decode_bool(arr[18]),
+      udpStun: dco_decode_list_String(arr[19]),
+      tcpStun: dco_decode_list_String(arr[20]),
+      tunnelPort: dco_decode_opt_box_autoadd_u_16(arr[21]),
     );
   }
 
@@ -2129,8 +2127,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_serverAddr = sse_decode_list_String(deserializer);
     var var_certMode = sse_decode_String(deserializer);
     var var_networkCode = sse_decode_String(deserializer);
-    var var_token = sse_decode_String(deserializer);
-    var var_serverToken = sse_decode_String(deserializer);
+
     var var_deviceId = sse_decode_String(deserializer);
     var var_deviceName = sse_decode_String(deserializer);
     var var_tunName = sse_decode_opt_String(deserializer);
@@ -2154,8 +2151,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         serverAddr: var_serverAddr,
         certMode: var_certMode,
         networkCode: var_networkCode,
-        token: var_token,
-        serverToken: var_serverToken,
+
         deviceId: var_deviceId,
         deviceName: var_deviceName,
         tunName: var_tunName,
@@ -2749,8 +2745,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_list_String(self.serverAddr, serializer);
     sse_encode_String(self.certMode, serializer);
     sse_encode_String(self.networkCode, serializer);
-    sse_encode_String(self.token, serializer);
-    sse_encode_String(self.serverToken, serializer);
+
     sse_encode_String(self.deviceId, serializer);
     sse_encode_String(self.deviceName, serializer);
     sse_encode_opt_String(self.tunName, serializer);

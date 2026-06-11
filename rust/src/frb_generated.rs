@@ -1838,8 +1838,7 @@ impl SseDecode for crate::api::vnt_api::VntConfig {
         let mut var_serverAddr = <Vec<String>>::sse_decode(deserializer);
         let mut var_certMode = <String>::sse_decode(deserializer);
         let mut var_networkCode = <String>::sse_decode(deserializer);
-        let mut var_token = <String>::sse_decode(deserializer);
-        let mut var_serverToken = <String>::sse_decode(deserializer);
+
         let mut var_deviceId = <String>::sse_decode(deserializer);
         let mut var_deviceName = <String>::sse_decode(deserializer);
         let mut var_tunName = <Option<String>>::sse_decode(deserializer);
@@ -1863,8 +1862,7 @@ impl SseDecode for crate::api::vnt_api::VntConfig {
             server_addr: var_serverAddr,
             cert_mode: var_certMode,
             network_code: var_networkCode,
-            token: var_token,
-            server_token: var_serverToken,
+
             device_id: var_deviceId,
             device_name: var_deviceName,
             tun_name: var_tunName,
@@ -2229,8 +2227,7 @@ impl flutter_rust_bridge::IntoDart for crate::api::vnt_api::VntConfig {
             self.server_addr.into_into_dart().into_dart(),
             self.cert_mode.into_into_dart().into_dart(),
             self.network_code.into_into_dart().into_dart(),
-            self.token.into_into_dart().into_dart(),
-            self.server_token.into_into_dart().into_dart(),
+
             self.device_id.into_into_dart().into_dart(),
             self.device_name.into_into_dart().into_dart(),
             self.tun_name.into_into_dart().into_dart(),
@@ -2740,8 +2737,7 @@ impl SseEncode for crate::api::vnt_api::VntConfig {
         <Vec<String>>::sse_encode(self.server_addr, serializer);
         <String>::sse_encode(self.cert_mode, serializer);
         <String>::sse_encode(self.network_code, serializer);
-        <String>::sse_encode(self.token, serializer);
-        <String>::sse_encode(self.server_token, serializer);
+
         <String>::sse_encode(self.device_id, serializer);
         <String>::sse_encode(self.device_name, serializer);
         <Option<String>>::sse_encode(self.tun_name, serializer);

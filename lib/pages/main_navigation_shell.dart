@@ -392,7 +392,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
         errorMessage = '[$configName] 网络连接初始化失败';
         break;
       case RustErrorType.passwordError:
-        errorMessage = '[$configName] 服务端验证密码错误';
+        errorMessage = '[$configName] 服务端验证密码(password)错误或被服务端拒绝，请检查配置或联系管理员';
         break;
       default:
         errorMessage = '[$configName] 未知错误';
@@ -416,13 +416,11 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
       // 保存配置到App Group
       await IOSVPNService.saveConfig(
         serverAddress: serverAddress,
-        token: config.serverToken,
       );
 
       // 启动VPN
       final success = await IOSVPNService.startVPN(
         serverAddress: serverAddress,
-        token: config.serverToken,
         deviceName: config.deviceName,
       );
 

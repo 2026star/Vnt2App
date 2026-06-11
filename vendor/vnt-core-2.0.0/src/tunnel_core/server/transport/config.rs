@@ -11,8 +11,7 @@ pub(crate) struct ConnectRegConfig {
     pub server_addr: ProtocolAddress,
     pub cert_mode: CertValidationMode,
     pub network_code: String,
-    pub token: String,
-    pub server_token: String,
+
     pub device_id: String,
     pub device_name: String,
     pub ip: Option<Ipv4Addr>,
@@ -104,8 +103,7 @@ impl ConnectRegConfig {
             ip_variable: self.ip_variable,
             server_id,
             registration_mode,
-            token: self.token.to_string(),
-            server_token: self.server_token.to_string(),
+
         }
     }
     pub async fn to_connect_config(&self) -> anyhow::Result<ConnectConfig> {

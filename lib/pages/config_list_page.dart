@@ -1014,9 +1014,7 @@ class _ConfigListPageState extends State<ConfigListPage> {
 
     String errorMsg;
     switch (msg.code) {
-      case RustErrorType.tokenError:
-        errorMsg = '[$configName] token错误';
-        break;
+
       case RustErrorType.disconnect:
         errorMsg = '[$configName] 与服务器发生断连，正在尝试重连...';
         break;
@@ -1040,7 +1038,7 @@ class _ConfigListPageState extends State<ConfigListPage> {
         errorMsg = '[$configName] 网络连接初始化失败';
         break;
       case RustErrorType.passwordError:
-        errorMsg = '[$configName] 服务端验证密码错误';
+        errorMsg = '[$configName] 服务端验证密码(password)错误或被服务端拒绝，请检查配置或联系管理员';
         break;
       default:
         errorMsg = '[$configName] 发生未知错误: ${msg.msg}';
@@ -1058,13 +1056,11 @@ class _ConfigListPageState extends State<ConfigListPage> {
       // 保存配置到App Group
       await IOSVPNService.saveConfig(
         serverAddress: serverAddress,
-        token: config.serverToken,
       );
 
       // 启动VPN
       final success = await IOSVPNService.startVPN(
         serverAddress: serverAddress,
-        token: config.serverToken,
         deviceName: config.deviceName,
       );
 
