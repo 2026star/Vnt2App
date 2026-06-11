@@ -2127,6 +2127,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_serverAddr = sse_decode_list_String(deserializer);
     var var_certMode = sse_decode_String(deserializer);
     var var_networkCode = sse_decode_String(deserializer);
+    var var_token = sse_decode_String(deserializer);
+    var var_serverToken = sse_decode_String(deserializer);
     var var_deviceId = sse_decode_String(deserializer);
     var var_deviceName = sse_decode_String(deserializer);
     var var_tunName = sse_decode_opt_String(deserializer);
@@ -2150,6 +2152,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         serverAddr: var_serverAddr,
         certMode: var_certMode,
         networkCode: var_networkCode,
+        token: var_token,
+        serverToken: var_serverToken,
         deviceId: var_deviceId,
         deviceName: var_deviceName,
         tunName: var_tunName,
@@ -2743,6 +2747,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_list_String(self.serverAddr, serializer);
     sse_encode_String(self.certMode, serializer);
     sse_encode_String(self.networkCode, serializer);
+    sse_encode_String(self.token, serializer);
+    sse_encode_String(self.serverToken, serializer);
     sse_encode_String(self.deviceId, serializer);
     sse_encode_String(self.deviceName, serializer);
     sse_encode_opt_String(self.tunName, serializer);

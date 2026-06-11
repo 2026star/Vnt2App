@@ -3983,6 +3983,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       _buildSectionTitle(isDark, '服务器配置'),
                       _buildDeviceInfoItem(isDark, '服务器地址', _joinConfigValues(config.effectiveServerList)),
                       _buildDeviceInfoItem(isDark, 'Token', config.token.isEmpty ? '未设置' : '********'),
+                      _buildDeviceInfoItem(isDark, '服务端验证密码', config.serverToken.isEmpty ? '未设置' : '********'),
                       _buildDeviceInfoItem(isDark, '证书验证', config.effectiveCertMode),
                       _buildDeviceInfoItem(isDark, 'UDP STUN', _joinConfigValues(config.effectiveUdpStun, emptyText: '默认')),
                       _buildDeviceInfoItem(isDark, 'TCP STUN', _joinConfigValues(config.effectiveTcpStun, emptyText: '默认')),

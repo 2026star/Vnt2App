@@ -1,7 +1,9 @@
 class NetworkConfig {
   String itemKey;
   String configName;
+  String networkCode;
   String token;
+  String serverToken;
   String deviceName;
   String virtualIPv4;
   List<String> serverList;
@@ -28,7 +30,9 @@ class NetworkConfig {
   NetworkConfig({
     required this.itemKey,
     required this.configName,
-    required this.token,
+    required this.networkCode,
+    this.token = '',
+    this.serverToken = '',
     required this.deviceName,
     required this.virtualIPv4,
     List<String>? serverList,
@@ -117,7 +121,9 @@ class NetworkConfig {
   Map<String, dynamic> toJson() {
     return {
       'itemKey': itemKey,
-      'network_code': token,
+      'network_code': networkCode,
+      'token': token,
+      'server_token': serverToken,
       'config_name': configName,
       'ip': virtualIPv4,
       'server': effectiveServerList,
@@ -147,7 +153,9 @@ class NetworkConfig {
   Map<String, dynamic> toJsonSimple() {
     return {
       if (configName.isNotEmpty) 'config_name': configName,
-      if (token.isNotEmpty) 'network_code': token,
+      if (networkCode.isNotEmpty) 'network_code': networkCode,
+      if (token.isNotEmpty) 'token': token,
+      if (serverToken.isNotEmpty) 'server_token': serverToken,
       if (virtualIPv4.isNotEmpty) 'ip': virtualIPv4,
       if (serverList.isNotEmpty) 'server': effectiveServerList,
       if (deviceID.isNotEmpty) 'device_id': deviceID,
@@ -182,7 +190,9 @@ class NetworkConfig {
     return NetworkConfig(
       itemKey: _stringValue(json['itemKey'], fallback: ''),
       configName: _stringValue(json['config_name'], fallback: ''),
-      token: _stringValue(json['network_code'], fallback: ''),
+      networkCode: _stringValue(json['network_code'], fallback: ''),
+      token: _stringValue(json['token'], fallback: ''),
+      serverToken: _stringValue(json['server_token'], fallback: ''),
       deviceName: _stringValue(json['device_name'], fallback: ''),
       virtualIPv4: _stringValue(json['ip'], fallback: ''),
       serverList: serverList,

@@ -383,6 +383,8 @@ class VntConfig {
   final List<String> serverAddr;
   final String certMode;
   final String networkCode;
+  final String token;
+  final String serverToken;
   final String deviceId;
   final String deviceName;
   final String? tunName;
@@ -407,6 +409,8 @@ class VntConfig {
     required this.serverAddr,
     required this.certMode,
     required this.networkCode,
+    required this.token,
+    required this.serverToken,
     required this.deviceId,
     required this.deviceName,
     this.tunName,
@@ -433,6 +437,8 @@ class VntConfig {
       serverAddr.hashCode ^
       certMode.hashCode ^
       networkCode.hashCode ^
+      token.hashCode ^
+      serverToken.hashCode ^
       deviceId.hashCode ^
       deviceName.hashCode ^
       tunName.hashCode ^
@@ -461,6 +467,8 @@ class VntConfig {
           serverAddr == other.serverAddr &&
           certMode == other.certMode &&
           networkCode == other.networkCode &&
+          token == other.token &&
+          serverToken == other.serverToken &&
           deviceId == other.deviceId &&
           deviceName == other.deviceName &&
           tunName == other.tunName &&

@@ -20,7 +20,9 @@ class NetworkConfigInputPage extends StatefulWidget {
 class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _networkCodeController = TextEditingController();
   final _groupNumberController = TextEditingController();
+  final _serverTokenController = TextEditingController();
   final _deviceNameController = TextEditingController(
       text: () {
         String version = Platform.operatingSystemVersion.replaceAll('"', '').trim();
@@ -43,6 +45,7 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
 
   bool _isPasswordVisible = false;
   bool _isTokenVisible = false;
+  bool _isServerTokenVisible = false;
   String _communicationMethod = 'QUIC';
   String _builtInIpProxy = 'OPEN';
   String _p2pPunch = 'OPEN';
@@ -55,6 +58,29 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
   String _compressionMethod = 'none'; // 核心仅支持 none/lz4
 
   _NetworkConfigInputPageState() {}
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _networkCodeController.dispose();
+    _groupNumberController.dispose();
+    _serverTokenController.dispose();
+    _deviceNameController.dispose();
+    _virtualIPv4Controller.dispose();
+    _groupPasswordController.dispose();
+    _deviceIDController.dispose();
+    _virtualNetworkCardNameController.dispose();
+    _mtuController.dispose();
+    _certModeController.dispose();
+    _tunnelPortController.dispose();
+    for (var c in _serverAddressControllers) c.dispose();
+    for (var c in _udpStunServers) c.dispose();
+    for (var c in _tcpStunServers) c.dispose();
+    for (var c in _inIps) c.dispose();
+    for (var c in _outIps) c.dispose();
+    for (var c in _portMappings) c.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -99,7 +125,9 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
 
   void _loadConfig(NetworkConfig config) {
     _nameController.text = config.configName;
+    _networkCodeController.text = config.networkCode ?? '';
     _groupNumberController.text = config.token;
+    _serverTokenController.text = config.serverToken;
     _deviceNameController.text = config.deviceName;
     _virtualIPv4Controller.text = config.virtualIPv4;
     for (final serverAddress in config.effectiveServerList) {
@@ -185,7 +213,9 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
         itemKey: widget.config?.itemKey ??
             DateTime.now().millisecondsSinceEpoch.toString(),
         configName: name,
+        networkCode: _networkCodeController.text.trim(),
         token: _groupNumberController.text,
+        serverToken: _serverTokenController.text,
         deviceName: _deviceNameController.text,
         virtualIPv4: _virtualIPv4Controller.text,
         serverList: serverList,
@@ -356,6 +386,12 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
                 const SizedBox(height: 20),
                 _buildSectionTitle('基本参数'),
                 CustomTooltipTextField(
+                  controller: _networkCodeController,
+                  labelText: '虚拟网络名 (network_code)',
+                  tooltipMessage: '(可选，用于标识特定虚拟网络)',
+                  maxLength: 64,
+                ),
+                CustomTooltipTextField(
                   controller: _groupNumberController,
                   labelText: '组网token',
                   tooltipMessage: '(相同的token和服务器才能组建一个虚拟局域网)',
@@ -377,6 +413,23 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
                     }
                     return null;
                   },
+                ),
+                CustomTooltipTextField(
+                  controller: _serverTokenController,
+                  labelText: '服务端验证密码 (server_token)',
+                  tooltipMessage: '(对应服务端的server_token，选填)',
+                  maxLength: 64,
+                  obscureText: !_isServerTokenVisible, // 控制是否隐藏文本
+                  suffixIcon: IconButton( // 可见性切换按钮
+                    icon: Icon(
+                      _isServerTokenVisible ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isServerTokenVisible = !_isServerTokenVisible;
+                      });
+                    },
+                  ),
                 ),
                 _buildTextFormField(
                   _deviceNameController,
