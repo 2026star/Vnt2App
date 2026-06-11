@@ -1551,31 +1551,33 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   VntConfig dco_decode_vnt_config(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 22)
-      throw Exception('unexpected arr length: expect 22 but see ${arr.length}');
+    if (arr.length != 24)
+      throw Exception('unexpected arr length: expect 24 but see ${arr.length}');
     return VntConfig(
       serverAddr: dco_decode_list_String(arr[0]),
       certMode: dco_decode_String(arr[1]),
       networkCode: dco_decode_String(arr[2]),
-      deviceId: dco_decode_String(arr[3]),
-      deviceName: dco_decode_String(arr[4]),
-      tunName: dco_decode_opt_String(arr[5]),
-      ip: dco_decode_opt_String(arr[6]),
-      password: dco_decode_opt_String(arr[7]),
-      noPunch: dco_decode_bool(arr[8]),
-      compress: dco_decode_bool(arr[9]),
-      rtx: dco_decode_bool(arr[10]),
-      fec: dco_decode_bool(arr[11]),
-      input: dco_decode_list_String(arr[12]),
-      output: dco_decode_list_String(arr[13]),
-      noNat: dco_decode_bool(arr[14]),
-      noTun: dco_decode_bool(arr[15]),
-      mtu: dco_decode_opt_box_autoadd_u_32(arr[16]),
-      portMapping: dco_decode_list_String(arr[17]),
-      allowPortMapping: dco_decode_bool(arr[18]),
-      udpStun: dco_decode_list_String(arr[19]),
-      tcpStun: dco_decode_list_String(arr[20]),
-      tunnelPort: dco_decode_opt_box_autoadd_u_16(arr[21]),
+      token: dco_decode_String(arr[3]),
+      serverToken: dco_decode_String(arr[4]),
+      deviceId: dco_decode_String(arr[5]),
+      deviceName: dco_decode_String(arr[6]),
+      tunName: dco_decode_opt_String(arr[7]),
+      ip: dco_decode_opt_String(arr[8]),
+      password: dco_decode_opt_String(arr[9]),
+      noPunch: dco_decode_bool(arr[10]),
+      compress: dco_decode_bool(arr[11]),
+      rtx: dco_decode_bool(arr[12]),
+      fec: dco_decode_bool(arr[13]),
+      input: dco_decode_list_String(arr[14]),
+      output: dco_decode_list_String(arr[15]),
+      noNat: dco_decode_bool(arr[16]),
+      noTun: dco_decode_bool(arr[17]),
+      mtu: dco_decode_opt_box_autoadd_u_32(arr[18]),
+      portMapping: dco_decode_list_String(arr[19]),
+      allowPortMapping: dco_decode_bool(arr[20]),
+      udpStun: dco_decode_list_String(arr[21]),
+      tcpStun: dco_decode_list_String(arr[22]),
+      tunnelPort: dco_decode_opt_box_autoadd_u_16(arr[23]),
     );
   }
 
