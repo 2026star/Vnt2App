@@ -206,20 +206,17 @@ class SystemTrayManager {
       }
     } else if (Platform.isWindows) {
       iconPath = hasConnection ? 'assets/app_icon_connected.ico' : 'assets/app_icon.ico';
-      if (!File(iconPath).existsSync()) {
-        iconPath = 'assets/app_icon.ico'; // 降级处理
-      }
     } else {
       iconPath = hasConnection ? 'assets/app_icon_connected.png' : 'assets/app_icon.png';
-      if (!File(iconPath).existsSync()) {
-        iconPath = 'assets/app_icon.png';
-      }
     }
 
     try {
       await systemTray.setImage(iconPath);
+      if (Platform.isWindows) {
+        await windowManager.setIcon(iconPath);
+      }
     } catch (e) {
-      debugPrint('设置托盘图标失败: $e');
+      debugPrint('设置托盘/窗口图标失败: $e');
     }
   }
 
