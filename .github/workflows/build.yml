@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'
+      - 'V*'
   workflow_dispatch:
     inputs:
       rebuild_android_so:
@@ -519,7 +522,7 @@ jobs:
 
   deploy:
     needs: build
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.release_version != '' }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && inputs.release_version != '') || startsWith(github.ref, 'refs/tags/') }}
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
@@ -553,7 +556,17 @@ jobs:
           find release-assets -maxdepth 1 -type f -print | sort
           sudo timedatectl set-timezone "Asia/Shanghai"
           echo "build_time=$(TZ=UTC-8 date '+%Y年%m月%d日%H:%M:%S' | jq -sRr @uri)" >> $GITHUB_ENV
-          echo "build_tag=${{ startsWith(inputs.release_version, 'v') && inputs.release_version || format('v{0}', inputs.release_version) }}" >> $GITHUB_ENV
+          
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [[ "${{ inputs.release_version }}" == v* ]]; then
+              echo "build_tag=${{ inputs.release_version }}" >> $GITHUB_ENV
+            else
+              echo "build_tag=v${{ inputs.release_version }}" >> $GITHUB_ENV
+            fi
+          else
+            echo "build_tag=${{ github.ref_name }}" >> $GITHUB_ENV
+          fi
+          
           if ! find release-assets -maxdepth 1 -type f | grep -q .; then
             echo "没有可发布的成功构建产物"
             exit 1
@@ -562,7 +575,7 @@ jobs:
       - name: 发布 GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ startsWith(inputs.release_version, 'v') && inputs.release_version || format('v{0}', inputs.release_version) }}
+          tag_name: ${{ env.build_tag }}
           body: |
             > ### ![](https://img.shields.io/badge/%E7%BC%96%E8%AF%91%E6%97%B6%E9%97%B4-${{ env.build_time }}-8267?logo=github&labelColor=%E9%A1%BB)![](https://img.shields.io/github/downloads/${{ github.repository }}/${{ env.build_tag }}/total?label=%E4%B8%8B%E8%BD%BD%E6%AC%A1%E6%95%B0&logo=github) 
 
