@@ -4,10 +4,24 @@ import 'package:vnt2_app/utils/responsive_utils.dart';
 // 全局活跃 Toast 列表
 final List<_ToastInfo> _activeToasts = [];
 
+// 防抖：记录最后一次 Toast 的内容和时间
+String? _lastToastMessage;
+DateTime? _lastToastTime;
+
 /// 显示顶部提示消息
 /// [message] 提示内容
 /// [isSuccess] true为成功（绿色），false为错误（红色）
 void showTopToast(BuildContext context, String message, {bool isSuccess = true}) {
+  final now = DateTime.now();
+  if (_lastToastMessage == message &&
+      _lastToastTime != null &&
+      now.difference(_lastToastTime!).inSeconds < 2) {
+    // 短时间内相同的 Toast，直接忽略（防抖处理），防止频繁重连导致 UI 卡顿
+    return;
+  }
+  _lastToastMessage = message;
+  _lastToastTime = now;
+
   final overlay = Overlay.of(context);
   late OverlayEntry overlayEntry;
   late _ToastInfo toastInfo;

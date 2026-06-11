@@ -410,9 +410,6 @@ class _NetworkConfigInputPageState extends State<NetworkConfigInputPage> {
                     return null;
                   },
                 ),
-                    },
-                  ),
-                ),
                 _buildTextFormField(
                   _deviceNameController,
                   '设备名称',

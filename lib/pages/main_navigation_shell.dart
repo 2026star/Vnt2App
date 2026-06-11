@@ -256,7 +256,12 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             // 重连成功（onece 已经是 false，说明之前已经连接过）
             showTopToast(context, '[${config.configName}] 已重新连接到服务器',
                 isSuccess: true);
-            unawaited(chatManager.syncConnections());
+            // 防抖：延迟同步，防止频繁掉线重连时引发界面严重卡顿
+            Future.delayed(const Duration(seconds: 2), () {
+              if (mounted && vntManager.hasConnection()) {
+                unawaited(chatManager.syncConnections());
+              }
+            });
           }
         } else if (msg == 'stop') {
           vntManager.remove(config.itemKey);
