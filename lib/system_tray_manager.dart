@@ -212,11 +212,8 @@ class SystemTrayManager {
 
     try {
       await systemTray.setImage(iconPath);
-      if (Platform.isWindows) {
-        await windowManager.setIcon(iconPath);
-      }
     } catch (e) {
-      debugPrint('设置托盘/窗口图标失败: $e');
+      debugPrint('设置托盘图标失败: $e');
     }
   }
 
