@@ -125,7 +125,7 @@ public class MyVpnService extends VpnService {
             Log.e(TAG, "Error establishing VPN interface", e);
             throw e;
         }
-        return vpnInterface.getFd();
+        return vpnInterface.detachFd();
     }
 
     @Override

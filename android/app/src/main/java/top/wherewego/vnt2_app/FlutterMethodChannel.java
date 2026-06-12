@@ -99,14 +99,16 @@ public class FlutterMethodChannel {
 
     public static void callSuccess(int fd) {
         if (pendingResult != null) {
-            pendingResult.success(fd);
+            MethodChannel.Result result = pendingResult;
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> result.success(fd));
         }
         pendingResult = null;
     }
 
     public static void callError(String msg, Exception e) {
         if (pendingResult != null) {
-            pendingResult.error("VPN_ERROR", msg, e);
+            MethodChannel.Result result = pendingResult;
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> result.error("VPN_ERROR", msg, e));
         }
         pendingResult = null;
     }
