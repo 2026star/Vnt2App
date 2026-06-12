@@ -66,11 +66,14 @@ public class MyVpnService extends VpnService {
         }
         FlutterMethodChannel.stopVnt();
         if (vpnService != null) {
-            vpnService.stopSelf();
+            MyVpnService temp = vpnService;
+            vpnService = null;
+            temp.stopSelf();
         }
         if (vpnInterface != null) {
             try {
                 vpnInterface.close();
+                vpnInterface = null;
             } catch (IOException e) {
                 Log.e(TAG, "Error closing existing VPN interface", e);
             }

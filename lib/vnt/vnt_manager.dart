@@ -365,10 +365,11 @@ class VntManager {
   }
 
   Future<void> removeAll() async {
-    for (var element in map.entries) {
+    var entries = map.entries.toList();
+    map.clear();
+    for (var element in entries) {
       await element.value.close();
     }
-    map.clear();
     // 更新磁贴和小组件状态
     if (Platform.isAndroid) {
       VntAppCall.updateWidgetAndTile(false);
